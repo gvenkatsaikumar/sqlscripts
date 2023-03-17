@@ -1,4 +1,0 @@
-
-
-
-cmd: telnet server ip port number(telnet 172.16.17.156 1599) 

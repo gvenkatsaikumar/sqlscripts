@@ -1,63 +1,0 @@
-
-Unconfigure Logshipping
--- Execute on Source Server (Primary)
-
-
- 
-
-EXEC master.dbo.sp_delete_log_shipping_primary_secondary
-
-@primary_database = N'AdventureWorks',
-
-@secondary_server = N'LogShippingServer',
-
-@secondary_database = N'LogShipAdventureWorks'
-
-GO
-
- 
-
-
- 
-
--- Execute on Source Server (Primary)
-
- 
-
-EXEC sp_delete_log_shipping_primary_database
-
-@database= db_name
-
-Go
-
-
- 
-
--- Execute on Destination Server (Secondary)
-
- 
-
-Exec sp_delete_log_shipping_secondary_database
-
-@Secondary_database = db_name
-
-Go
-
-
-Delete entries from MSDB
-SELECT * FROM dbo.log_shipping_monitor_alert  GO 
- --delete from dbo.log_shipping_monitor_secondary
-SELECT * FROM dbo.log_shipping_monitor_error_detail  GO  
-SELECT * FROM dbo.log_shipping_monitor_history_detail  GO  
-SELECT * FROM dbo.log_shipping_monitor_primary  GO 
-select * FROM dbo.log_shipping_monitor_secondary WHERE secondary_server=''  GO
-  SELECT * FROM dbo.log_shipping_primaries  GO 
- SELECT * FROM dbo.log_shipping_primary_databases  GO  
---SELECT * FROM dbo.log_shipping_primary_secondaries  GO  
-SELECT * FROM dbo.log_shipping_secondaries  GO 
- SELECT * FROM dbo.log_shipping_secondary  GO 
- SELECT * FROM dbo.log_shipping_secondary_databases 
- select * FROM dbo.log_shipping_primary_secondaries WHERE secondary_server=''
-  --DELETE FROM dbo.log_shipping_primary_secondaries WHERE secondary_server=''
-
-

@@ -1,1 +1,0 @@
-select growth,       name,filename,       size*8.0*1024/(1024*1024) as TotalMB,       fileproperty(name,'SpaceUsed')*8.0*1024/(1024*1024) as UsedMB,       size*8.0*1024/(1024*1024) -       fileproperty(name,'SpaceUsed')*8.0*1024/(1024*1024) as FreeMBfrom       sysfileswhere       (status & 0x2) <> 0
