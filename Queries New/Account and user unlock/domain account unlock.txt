@@ -1,0 +1,3 @@
+
+
+RUN>>lusrmgr.msc--->open user--->right click on user--->properties-->uncheck accountis locked out check bx.

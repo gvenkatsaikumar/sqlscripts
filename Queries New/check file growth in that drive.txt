@@ -1,0 +1,1 @@
+select * from sys.sysaltfiles where filename like 'W%'---------to check file growth in that drive

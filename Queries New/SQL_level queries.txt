@@ -1,0 +1,5 @@
+alter database esb set single_user with immediate rollback
+
+shutdown with nowait-----to stop sql instance
+
+dbcc checkdb('esb',repair_allow_data_loss) with no_infomsgs

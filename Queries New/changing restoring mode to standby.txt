@@ -1,0 +1,30 @@
+---->connect to prod instance--hydilomdb1dc(172.16.22.7)
+then right click on onl_mgr_temp>> Go to properties--->>Transactional log shipping-->>Connect to secondary instance (HYDILOMLS36)>> Go to restore transactional log __Select standby mode(online)
+
+Connect to secondary instance (HYDILOMLS36 or  10.56.72.67)(windows authentication) .. Execute query --use [onlmgr_temp go >> Execute restore job for onlmgr_temp (LsRestore _hydilomdb1dc_onlmgr_temp)
+
+
+execute untill executed successfully--.-->check (LsRestore _hydilomdb1dc_onlmgr_temp) job is got failed
+
+
+
+Back to Restore mode:
+
+
+connect to prod instance--hydilomdb1dc(172.16.22.7)
+then right cluck on onl_mgr_temp>> Go to properties--->>Transactional log shipping-->>Connect to secondary instance (HYDILOMLS36)>> Go to restore transactional log --->Select No Recovery
+
+ Check for the session on fallback (Any onlmgr_temp related session) . If present then kill them except our session and anything related to restore job.
+Query for killing session related to onlmgr_temp
+
+Connect to secondary instance (HYDILOMLS36)--->run below kill query ---->kill the sessions---->go to job monitor--->execute (LsRestore _hydilomdb1dc_onlmgr_temp)--->check again sessions running in HYDILOMLS36--> if present kill again
+
+select 'kill ' + convert(varchar,spid) from sys.sysprocesses where dbid=db_id('onlmgr_temp')
+
+
+
+Connect to secondary instance (HYDILOMLS36)--->run below query
+
+use onlmgr_temp 
+go
+

@@ -1,0 +1,12 @@
+
+execution file should be in .sql extension and c drive
+
+
+SQLCMD -S ILASSISDB01 -E -i dbo.tblIIBVehicleData.Table.sql
+
+SQLCMD -s hostname  trusted connections(sql connections)  file
+
+
+SQLCMD -S ILASSISDB01 -u username -p password -E -i dbo.tblIIBVehicleData.Table.sql
+
+

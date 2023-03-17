@@ -1,0 +1,5 @@
+Grant usage on schema schemaname to user name--------for usage
+
+Grant select on all tables in schema schemaname to ser name---for all tables
+
+grant select on schema.tablename to user name---for single table

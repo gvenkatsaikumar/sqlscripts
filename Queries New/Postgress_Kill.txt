@@ -1,0 +1,23 @@
+select pg_terminate_backend(pid)
+
+from pg_stat_activity
+
+where pid = '4648'; -- kill the pid
+
+ 
+
+select relation::regclass, * from pg_locks where not granted; -- check locked queries
+
+ 
+
+ 
+
+select * from pg_stat_activity where pid=4648 -- check query
+
+ 
+
+select * from pg_locks where
+
+granted and relation = '37184437'::regclass ---Check relation ID which is blocking the current statement
+
+ 

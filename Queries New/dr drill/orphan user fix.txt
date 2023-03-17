@@ -1,0 +1,8 @@
+orphan user fix
+
+SP_CHANGE_USERS_LOGIN 'REPORT'----to check orphan user
+SP_CHANGE_USERS_LOGIN 'update_one','DB_LAM_SERVICE','DB_LAM_SERVICE'----to fix orphan user
+
+
+sp_configure----to check configuration----remote access check for remote level access
+

@@ -1,0 +1,5 @@
+
+to fine logs in package
+-----------------------
+
+select * from dbo.tblESB_SSIS_PackageLog where PACKAGE_NAME='' order by 1 desc------Execute on ESB database

@@ -1,0 +1,40 @@
+Step 1:check database state
+
+Databses:
+  <>System databases
+  <>Database snapshot
+  <>database1(recovery panding)-------------database in recovery pending mode(we connot access database)
+  <>database2
+
+
+step 2:check issue
+
+1:check sql error log for error for issue
+
+        Datafile----17204------|
+        logfile-----17207      |---->check issue on which file(sql error log)
+        page--------3604-------|
+
+        How to check sql error logs:
+
+        SSMS--management--->sql server log--->expend--->check todays date file
+
+2:check all the database1 db related datafiles and logfile drives are available or not
+
+       use Master
+       go
+       select * from sys.masterfile
+
+3:if drive is not present--->check with windows team and get it add--->check file saare present or not
+
+4:If drive is present then check free space on drive--->add storage to drive
+
+5:will get this issue---->if drive swapping is not happend properly
+
+step 3:take services restart then automatically database will come to online
+
+Database recovery is happend in 3 phases:
+
+phase 1 of 3:analyse
+phase 2 of 3:roll farword
+phare 3 of 3:roll back

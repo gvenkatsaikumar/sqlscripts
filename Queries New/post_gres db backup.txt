@@ -1,0 +1,2 @@
+"C:\Program Files\PostgreSQL\9.5\bin\pg_dump"   -U postgres   -Fc 64vb   > "D:\PostGres_DB_backups\Backups\64vb_%date:~-7,2%%date:~-10,2%%date:~-4,4%_%time:~0,2%%time:~3,2%%time:~6,2%.bak"
+------bat file---------------------||-dumpapp-| |-user name-||-DB name-||----------backup path------------||---dbname_automatically date n time of db-----------------------------------------|

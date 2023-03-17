@@ -1,0 +1,73 @@
+
+
+
+
+list of linked servers:
+
+exec sp_linkedservers(system sp)
+            (or)
+select *  from sys.servers order by 1 desc 
+
+-----------------------------
+
+
+Sql  To Sql :
+ex:10.56.72.65---->172.16.17.131
+
+server object-->Linked servers--->Yatra_To_HRSLOM
+
+step1:check sql to sql
+  
+  Yatra_To_HRSLOM-->right click -script linked server as-->create--New Query editor window
+
+   @svrproduct=N' Sql server
+
+Step 2:Alias which server 
+
+  Run-->cliconfg--->Alias--->see which server is linked
+
+Step 3:Security (permission)
+
+
+  Yatra_To_HRSLOM-->right click--Properties-->security
+  
+  local logins --->to login source server(source logins)
+
+  Remote logins --->destination server logins
+
+check-->permission that user having in destination server
+
+connect (172.16.17.131)with remote user(Sms-To-Hrslom)---check user permissions(security-->Logins-->user name(Sms-To-Hrslom)--Right click-properties-->User  Mapping see which permission is there. based on permissions we can access that db from source server.
+
+
+select * from openquery(Yatra_To_HRSLOM,'select top 10  * from hrslom.dbo.testtbl')---->can get output in source server(db Yatra) from destination server(hrslom db).based on remote user permission(public we cnt access that database)																												
+
+
+Sql to oracle:
+ex:10.56.72.65---->172.16.17.131
+
+server object-->Linked servers--->RMS_TO_SAS
+
+step1:check sql to sql
+  
+  RMS_TO_SAS-->right click -script linked server as-->create--New Query editor window
+
+   @svrproduct=N' Oracle,@datasrc=N'sasildwh'(tns name which is used to connect server)
+
+Step 2:Alias which server:
+
+  cmd:tnsping sasildwh(datasrc)--->u will get location 
+  Run:E:\Ora11204Cli64\orabase\oracle\product\11.2.0\client_1\network\admin----->tnsnames.ora---->search for datasrc--->to get alias server name
+
+
+ Step 3:Security (permission)
+
+  RMS_TO_SAS-->right click --Properties-->security
+
+  local logins --->to login source server(source logins)
+
+  Remote logins --->destination server logins
+
+     
+
+       
