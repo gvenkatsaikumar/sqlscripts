@@ -1,0 +1,29 @@
+CREATE TABLE #SpaceInfo
+(
+    [Database Name] nvarchar(128),
+    [File Name] nvarchar(128),
+    [Physical Name] nvarchar(260),
+    [File Type] nvarchar(60),
+    [Total Size in MB] float,
+    [Free Space in MB] float
+);
+
+EXEC sp_MSforeachdb '
+USE [?];
+IF DB_ID() > 4 -- exclude system databases
+BEGIN
+    INSERT INTO #SpaceInfo
+    SELECT ''?'' AS [Database Name], 
+           name AS [File Name], 
+           physical_name AS [Physical Name], 
+           type_desc AS [File Type],
+           size/128.0 AS [Total Size in MB], 
+           size/128.0 - CAST(FILEPROPERTY(name, ''SpaceUsed'') AS int)/128.0 AS [Free Space in MB]
+    FROM sys.database_files;
+END
+';
+
+SELECT * FROM #SpaceInfo ORDER BY [Database Name], [File Type], [File Name];
+
+DROP TABLE #SpaceInfo;
+ 
