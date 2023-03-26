@@ -1,0 +1,38 @@
+DECLARE @dbName NVARCHAR(128)
+DECLARE @indexSizeUsage TABLE (
+    database_name NVARCHAR(128),
+    index_size_mb DECIMAL(12, 2),
+    row_count BIGINT
+)
+
+DECLARE db_cursor CURSOR FOR
+SELECT name FROM sys.databases WHERE state_desc = 'ONLINE'
+
+OPEN db_cursor
+
+FETCH NEXT FROM db_cursor INTO @dbName
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    DECLARE @sql NVARCHAR(MAX) = '
+        USE ' + QUOTENAME(@dbName) + ';
+        INSERT INTO @indexSizeUsage (database_name, index_size_mb, row_count)
+        SELECT DB_NAME(), 
+               SUM(CASE WHEN a.type_desc = ''CLUSTERED'' OR a.type_desc = ''HEAP'' THEN COALESCE(b.used_pages, 0) * 8 / 1024.0 ELSE 0 END) AS index_size_mb,
+               SUM(CASE WHEN a.type_desc = ''CLUSTERED'' OR a.type_desc = ''HEAP'' THEN b.row_count ELSE 0 END) AS row_count
+        FROM sys.indexes a
+        LEFT JOIN (SELECT object_id, SUM(used_pages) AS used_pages, SUM(row_count) AS row_count FROM sys.dm_db_partition_stats GROUP BY object_id) b ON a.object_id = b.object_id
+        WHERE a.index_id > 0;
+    '
+    EXEC sp_executesql @sql
+
+    FETCH NEXT FROM db_cursor INTO @dbName
+END
+
+CLOSE db_cursor
+DEALLOCATE db_cursor
+
+SELECT database_name, SUM(index_size_mb) AS index_size_mb, SUM(row_count) AS row_count
+FROM @indexSizeUsage
+GROUP BY database_name
+ORDER BY database_name
