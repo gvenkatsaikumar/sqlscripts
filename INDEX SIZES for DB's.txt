@@ -3,7 +3,7 @@ DECLARE @dbname NVARCHAR(128)
 DECLARE @indexSizeUsage TABLE (
     database_id INT,
     database_name NVARCHAR(128),
-    index_size_mb FLOAT
+    index_size_kb FLOAT
 )
 
 DECLARE db_cursor CURSOR FOR
@@ -20,11 +20,11 @@ BEGIN
     USE ' + QUOTENAME(@dbname) + ';
     SELECT DB_ID() AS database_id,
         DB_NAME() AS database_name,
-        SUM(used_page_count) * 8 / 1024 AS index_size_mb
+        SUM(used_page_count) * 8 AS index_size_kb
     FROM sys.dm_db_partition_stats
     WHERE index_id > 0;'
     
-    INSERT INTO @indexSizeUsage (database_id, database_name, index_size_mb)
+    INSERT INTO @indexSizeUsage (database_id, database_name, index_size_kb)
     EXEC sp_executesql @sql
     
     FETCH NEXT FROM db_cursor INTO @dbid, @dbname
@@ -34,4 +34,4 @@ CLOSE db_cursor
 DEALLOCATE db_cursor
 
 SELECT * FROM @indexSizeUsage
-ORDER BY index_size_mb DESC
+ORDER BY index_size_kb DESC
