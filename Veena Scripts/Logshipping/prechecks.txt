@@ -1,0 +1,21 @@
+Pre-checks for logshipping
+
+1.need to open ports
+2.latest full backup of database 
+3.enable Ls backup on primary database
+5.restore trns on dr database[in between full backup and logshipping time trns]
+6.need to create AD account[on dr server create ad account with  primary instance name\on primary create with dr instance name with $]
+7.add AD account in security settings on both primary and dr servers Run---->secpol.msc--->local policies--->user rights assignment 
+
+   i.Access this computer from the network---- add AD account
+
+   add both dr and primanry domain account to below points 
+
+   ii.Adjust memory quotas for a process
+   iii.Log on locally
+   iv.Allow log on through Remote Desktop Services
+   v.Log on as a batch job
+   vi.Log on as a service
+   vii.Lock pages in memory
+
+4.both primary and dr database should be in full recovery model
