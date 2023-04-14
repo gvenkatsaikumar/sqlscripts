@@ -1,0 +1,88 @@
+-----------Data,Log File Growth change --- 1 Day ----------------------
+
+DECLARE @current_tracefilename VARCHAR(500);
+DECLARE @0_tracefilename VARCHAR(500);
+DECLARE @indx INT;
+SELECT @current_tracefilename = path
+FROM sys.traces
+WHERE is_default = 1;
+SET @current_tracefilename = REVERSE(@current_tracefilename);
+SELECT @indx = PATINDEX('%\%', @current_tracefilename);
+SET @current_tracefilename = REVERSE(@current_tracefilename);
+SET @0_tracefilename = LEFT(@current_tracefilename, LEN(@current_tracefilename) - @indx) + '\log.trc';
+SELECT DatabaseName, 
+       te.name, 
+       Filename, 
+       (SUM(IntegerData) * 8.0 / 1024) AS 'ChangeInSize MB', 
+       CAST(StartTime AS DATE) AS StartDate
+FROM ::fn_trace_gettable(@0_tracefilename, DEFAULT) t
+     INNER JOIN sys.trace_events AS te ON t.EventClass = te.trace_event_id
+WHERE(trace_event_id >= 92
+      AND trace_event_id <= 95)
+GROUP BY CAST(StartTime AS DATE), DatabaseName, te.name, Filename
+ORDER BY StartDate;
+
+
+-----------Data,Log File Growth change --- Weekly ----------------------
+
+DECLARE @current_tracefilename VARCHAR(500);
+DECLARE @0_tracefilename VARCHAR(500);
+DECLARE @indx INT;
+DECLARE @StartDate DATETIME;
+SET @StartDate = '2023-01-01'; -- change this to your desired start date
+
+SELECT @current_tracefilename = path
+FROM sys.traces
+WHERE is_default = 1;
+
+SET @current_tracefilename = REVERSE(@current_tracefilename);
+SELECT @indx = PATINDEX('%\%', @current_tracefilename);
+SET @current_tracefilename = REVERSE(@current_tracefilename);
+SET @0_tracefilename = LEFT(@current_tracefilename, LEN(@current_tracefilename) - @indx) + '\log.trc';
+
+SELECT 
+    DATEADD(DAY, DATEDIFF(DAY, @StartDate, t.StartTime) / 7 * 7, @StartDate) AS WeekStartDate,
+    DatabaseName, 
+    te.name, 
+    Filename, 
+    SUM(CONVERT(DECIMAL(10, 3), Duration / 1000000e0)) AS TimeTakenSeconds, 
+    SUM(IntegerData * 8.0 / 1024) AS 'ChangeInSize MB'
+FROM ::fn_trace_gettable(@0_tracefilename, DEFAULT) t
+INNER JOIN sys.trace_events AS te ON t.EventClass = te.trace_event_id
+WHERE(trace_event_id >= 92 AND trace_event_id <= 95)
+GROUP BY 
+    DATEADD(DAY, DATEDIFF(DAY, @StartDate, t.StartTime) / 7 * 7, @StartDate),
+    DatabaseName,
+    te.name,
+    Filename
+ORDER BY WeekStartDate;
+
+
+-----------Data,Log File Growth change --- 1 Day with App,host,login details ----------------------
+
+DECLARE @current_tracefilename VARCHAR(500);
+DECLARE @0_tracefilename VARCHAR(500);
+DECLARE @indx INT;
+SELECT @current_tracefilename = path
+FROM sys.traces
+WHERE is_default = 1;
+SET @current_tracefilename = REVERSE(@current_tracefilename);
+SELECT @indx = PATINDEX('%\%', @current_tracefilename);
+SET @current_tracefilename = REVERSE(@current_tracefilename);
+SET @0_tracefilename = LEFT(@current_tracefilename, LEN(@current_tracefilename) - @indx) + '\log.trc';
+SELECT DatabaseName, 
+       te.name, 
+       Filename, 
+       (SUM(IntegerData) * 8.0 / 1024) AS 'ChangeInSize MB', 
+       ApplicationName, 
+       HostName, 
+       LoginName,
+       CAST(StartTime AS DATE) AS StartDate
+FROM ::fn_trace_gettable(@0_tracefilename, DEFAULT) t
+     INNER JOIN sys.trace_events AS te ON t.EventClass = te.trace_event_id
+WHERE(trace_event_id >= 92
+      AND trace_event_id <= 95)
+GROUP BY CAST(StartTime AS DATE), DatabaseName, te.name, Filename, ApplicationName, HostName, LoginName
+ORDER BY StartDate;
+
+
