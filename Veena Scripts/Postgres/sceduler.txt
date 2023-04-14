@@ -1,0 +1,17 @@
+step 1:connect to postgres server(on EC2 instance)
+
+step 2:pgagent jobs through we can create or modify jobs(172.30.42.28)---->postgreSQL 11(login)
+
+Right click on pgAgent--->new job-->
+
+General--->
+
+       --->General---->connection type:remove
+steps--|
+       --->Code-->edit step and write execute code
+
+                         --->General
+Schedules--->edit step--|--->
+                         --->Exception
+
+SQL
