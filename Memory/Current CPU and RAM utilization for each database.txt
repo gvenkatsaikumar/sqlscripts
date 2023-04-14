@@ -1,0 +1,27 @@
+SELECT
+       T.[Database],
+       T.CPUTimeAsPercentage,
+       T.RAMUsageAsPercentage
+   FROM
+    (SELECT
+        [Database],
+        CONVERT (DECIMAL (6, 3), [CPUTimeInMiliSeconds] * 1.0 /
+        SUM ([CPUTimeInMiliSeconds]) OVER () * 100.0) AS [CPUTimeAsPercentage],
+        CONVERT (DECIMAL (6, 3), [MemoryUsageInBytes] * 1.0 /
+        SUM ([MemoryUsageInBytes]) OVER () * 100.0) AS [RAMUsageAsPercentage]
+     FROM 
+      (SELECT
+          dm_execplanattr.DatabaseID,
+          DB_Name(dm_execplanattr.DatabaseID) AS [Database],
+          SUM (dm_execquerystats.total_worker_time) AS CPUTimeInMiliSeconds,
+          SUM (dm_execquerystats.total_logical_reads + dm_execquerystats.total_logical_writes) AS MemoryUsageInBytes
+       FROM sys.dm_exec_query_stats dm_execquerystats
+       CROSS APPLY 
+        (SELECT
+            CONVERT (INT, value) AS [DatabaseID]
+         FROM sys.dm_exec_plan_attributes(dm_execquerystats.plan_handle)
+         WHERE attribute = N'dbid'
+        ) dm_execplanattr
+       GROUP BY dm_execplanattr.DatabaseID
+      ) AS CPUPerDb
+    )  AS T;
