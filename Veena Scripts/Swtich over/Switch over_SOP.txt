@@ -1,0 +1,46 @@
+1. Check Sync status --Dashoboard/Run below query on secondary
+
+select a.primary_database as DatabaseName, a.last_copied_file as BackupFileName, a.last_copied_date as BackupDateTime, b.last_restored_date as RestoreDateTime from dbo.log_shipping_secondary as a, dbo.log_shipping_secondary_databases as b;
+
+2. Database on secondary server should be in standby mode, If not change restoring mode to standby
+
+** To check current restoring mode run below query-- if value of restore mode is 1 then it is in standby mode, If 0 it is in restoring mode.
+
+Run on secondary (MSDB)
+
+SELECT 
+   secondary_database,
+   restore_mode,
+   disconnect_users,
+   last_restored_file
+FROM msdb.dbo.log_shipping_secondary_databases
+
+
+** To change Logshipping db to standby mode, run below query. (make @restore_mode=1)
+
+Run on master db on secondary server
+
+EXEC sp_change_log_shipping_secondary_database
+  @secondary_database = DB_NAME
+  @restore_mode = 1,
+  @disconnect_users = 1
+
+3. Again Check Sync Status
+
+4. Disable LS_Backup on primary server.
+
+5. Check active session on db. If any kill those session-
+
+**To kill active sessions-run below query
+
+select 'kill',spid,cmd from sys.sysprocesses where spid>50 and DBID=6
+
+6. Run the query to make live DB in standby mode. (Need to change DB name & Backup Path)Run on master -- Path- SQLDBA\AWS\Scripts\Switch over script
+
+7. Generate tail backup on primary ( Check trn file - It should be greater)
+
+8.Check copy and restore job on secondary db. Disable copy and restore job
+
+9. Once restoration done. check business queries, If matching, make db online on seconday with recovery.
+
+10. Restore database db_name with recovery
