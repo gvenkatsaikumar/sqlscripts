@@ -1,0 +1,24 @@
+SELECT 
+    DB_NAME() AS DatabaseName,
+    OBJECT_SCHEMA_NAME(i.object_id) AS SchemaName,
+    OBJECT_NAME(i.object_id) AS TableName,
+    i.name AS IndexName,
+    i.index_id AS IndexID,
+    ps.used_page_count * 8 / 1024 AS IndexSizeMB,
+    ips.avg_fragmentation_in_percent
+FROM 
+    sys.indexes AS i
+    INNER JOIN sys.dm_db_partition_stats AS ps ON (i.object_id = ps.object_id AND i.index_id = ps.index_id)
+    LEFT JOIN sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, 'LIMITED') AS ips ON (i.object_id = ips.object_id AND i.index_id = ips.index_id AND ips.index_level = 0)
+WHERE 
+    OBJECTPROPERTY(i.object_id, 'IsUserTable') = 1 AND
+    i.name IS NOT NULL
+GROUP BY 
+    i.object_id,
+    i.name,
+    i.index_id,
+    ps.used_page_count,
+    ips.avg_fragmentation_in_percent
+ORDER BY 
+    ips.avg_fragmentation_in_percent DESC,
+    ps.used_page_count DESC
