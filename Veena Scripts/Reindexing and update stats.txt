@@ -1,0 +1,101 @@
+** At the time of reindexing activity , no backup should be running >> If runnning , please abort the backup and preoceed with the reindexing activity.
+
+** sp_spaceused >> Index size
+
+** Once we get output of above script we need to copy output to query analyzer and execute one by one to defrag the index. Before executing alter index query , please do following prechecks.
+
+  1. Index Size and MDF Drive : MDF Drive Free size should be atleast 1.5 times of Index size.
+
+  2. Index Size and LDF Drive : LDF Drive Free size should be atleast same of Index size.
+
+  3. Index Size and TRN Drive : TRN Drive Free size should be atleast 20% of Index size.
+
+
+** Execute the below reindexing script >> It gives the tables having more than 30% fragmentaation along with the alter index query for each table .
+
+------------------------------Reindexing query---------------------------------------
+create table #allindexes (objectid int, indexid int, fragmentation float,Page_Count int)
+
+insert into #allindexes
+select
+
+object_id, index_id, avg_fragmentation_in_percent, page_count
+
+from sys.dm_db_index_physical_stats (DB_ID(), null, null , null, 'sampled')
+
+where index_id > 0
+
+ 
+select 'Total Fragmented indexes found: ',COUNT(*)   from #allindexes
+
+where fragmentation > 30
+
+select
+'alter index ' + quotename(i.name) +' on ' + quotename(SCHEMA_NAME(schema_id)) + '.' + OBJECT_NAME(i.object_id) + ' rebuild with (online=off)', '-- ' + quotename(i.type_desc), 'Pages:',f.Page_Count as PageCount,'Fragmentation>30:',f.fragmentation
+
+from sys.indexes i
+
+right join #allindexes f
+
+on i.object_id = f.objectid and i.index_id = f.indexid
+
+join sys.objects o
+
+on f.objectid = o.object_id
+
+where f.fragmentation > 30
+
+ORDER BY i.object_id,i.index_id
+
+drop table #allindexes
+
+------------------------------------------------------------Reindexing Query-----------------
+
+
+
+
+**execute the alter index query one by one to defrag the index >> If the table sizes are small,then we can execute bunch of queries at a time .
+
+If the table sizes are more ,then execute the query one by one.
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Update Stats:
+
+***At the time of updatestats activity , no backup should be running >> If runnning , please abort the backup and proceed with the  activity.
+
+** Execute the below update stats script .
+
+select 'UPDATE STATISTICS '+SCHEMA_NAME(schema_id)+'.'+'['+name+']'+ ' WITH FULLSCAN' from sys.tables where type ='U'
+
+
+** Once we execute above script will get all tables update stats script and then need to execute one by one.
+
+
+** Before executing all tables update stats script , please do follwing prechecks.
+
+  1. Check DB size >> If the DB size is huge , then get the disk space by top tables from GPU and exclude those tables and execute remaining all at a time , Later execute excluded tables scirpt  one by one.
+
+  2. Monitor Temp DB size during update stats activity .(maintain 20% of total size)
+
+
+
+update stats:
+
+UPDATE STATISTICS schema.tablename WITH FULLSCAN
+
+
+Reindex:
+
+alter index [PK__Users__A2B1D90507F6335A] on schema.tablename rebuild with (online=off)
+
+Reorganize and rebuild
+
+Reorganize---->fragmentation is below 20 it reorganise the indexes
+Rebuild--->fragmentation is above 20 it re creates indexes
+update stats----->its updates statistrics on query optimizer for fast query performance
+
+ 

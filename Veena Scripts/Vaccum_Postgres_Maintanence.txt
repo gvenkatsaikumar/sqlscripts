@@ -1,0 +1,13 @@
+select pg_terminate_backend(s.pid)
+from pg_locks l join pg_class c2 ON c2.oid =l.relation
+join pg_stat_activity s on s.pid=l.pid
+where relname IN ('pg_type','pg_namespace','pg_attribute','pg_class','pg_depend','pg_index','pg_shdepend','pg_attrdef')
+
+vacuum (FULL, Analyze) pg_catalog.pg_type;
+vacuum (FULL, Analyze) pg_catalog.pg_namespace;
+vacuum (FULL, Analyze) pg_catalog.pg_attribute;
+vacuum (FULL, Analyze) pg_catalog.pg_class;
+vacuum (FULL, Analyze) pg_catalog.pg_depend;
+vacuum (FULL, Analyze) pg_catalog.pg_index;
+vacuum (FULL, Analyze) pg_catalog.pg_shdepend;
+vacuum (FULL, Analyze) pg_catalog.pg_attrdef;

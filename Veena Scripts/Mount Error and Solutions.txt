@@ -1,0 +1,20 @@
+Please Note: 
+While mounting the drive we are getting below system error, for this we need to modify regedit and security policyâ€™s values. 
+          
+          System error 86 has occurred. 
+          The specified network password is not correct. 
+  
+Below changes need to be done in server for the above error. 
+  
+1. Registry Edit: 
+Run regedit 
+        HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Control/Lsa 
+Select LmCompatibilityLevel Set Value to either 3 OR 4 OR 5 
+  
+2. Security Policy 
+Open your Windows Local Security Policy 
+        Local Policies/Security Options/Network security: LAN Manager authentication 
+level/Set to - Send NTLMv2 responses only. 
+  
+OR - Send NTLMv2 responses only. Refuse LM 
+OR - Send NTLMv2 responses only. Refuse LM & NTLM 
